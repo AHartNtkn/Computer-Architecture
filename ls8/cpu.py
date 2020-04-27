@@ -57,11 +57,6 @@ class CPU:
         return self.R[6]
     def set_IS(self, value):
         self.R[6] = value
-    @property
-    def SP(self):
-        return self.R[7]
-    def set_SP(self, value):
-        self.R[7] = value
 
     # Named flag methods
     def flag(self, j):
@@ -137,6 +132,12 @@ class CPU:
         self.RAM[self.MAR] = self.MDR
 
     # Stack related methods.
+    @property
+    def SP(self):
+        return self.R[7]
+    def set_SP(self, value):
+        self.R[7] = value
+
     def pop(self):
         val = self.RAM[self.SP]
         self.RAM[self.SP] = 0
