@@ -149,42 +149,42 @@ class CPU:
         self.RAM[self.SP] = val & 255
     
     # Opcode Functions:
-    def create_branchtable(self):
-        self.branchtable = {}
-        self.branchtable[0x00] = self.NOP
-        self.branchtable[0x01] = self.HLT
-        self.branchtable[0x11] = self.RET
-        self.branchtable[0x13] = self.IRET
-        self.branchtable[0x45] = self.PUSH
-        self.branchtable[0x46] = self.POP
-        self.branchtable[0x47] = self.PRN
-        self.branchtable[0x48] = self.PRA
-        self.branchtable[0x50] = self.CALL
-        self.branchtable[0x52] = self.INT
-        self.branchtable[0x54] = self.JMP
-        self.branchtable[0x55] = self.JEQ
-        self.branchtable[0x56] = self.JNE
-        self.branchtable[0x57] = self.JGT
-        self.branchtable[0x58] = self.JLT
-        self.branchtable[0x59] = self.JLE
-        self.branchtable[0x5A] = self.JGE
-        self.branchtable[0x65] = self.INC
-        self.branchtable[0x66] = self.DEC
-        self.branchtable[0x69] = self.NOT
-        self.branchtable[0x82] = self.LDI
-        self.branchtable[0x83] = self.LD
-        self.branchtable[0x84] = self.ST
-        self.branchtable[0xA0] = self.ADD
-        self.branchtable[0xA1] = self.SUB
-        self.branchtable[0xA2] = self.MUL
-        self.branchtable[0xA3] = self.DIV
-        self.branchtable[0xA4] = self.MOD
-        self.branchtable[0xA7] = self.CMP
-        self.branchtable[0xA8] = self.AND
-        self.branchtable[0xAA] = self.OR
-        self.branchtable[0xAB] = self.XOR
-        self.branchtable[0xAC] = self.SHL
-        self.branchtable[0xAD] = self.SHR
+    def create_opcode_table(self):
+        self.opcode_table = {}
+        self.opcode_table[0x00] = self.NOP
+        self.opcode_table[0x01] = self.HLT
+        self.opcode_table[0x11] = self.RET
+        self.opcode_table[0x13] = self.IRET
+        self.opcode_table[0x45] = self.PUSH
+        self.opcode_table[0x46] = self.POP
+        self.opcode_table[0x47] = self.PRN
+        self.opcode_table[0x48] = self.PRA
+        self.opcode_table[0x50] = self.CALL
+        self.opcode_table[0x52] = self.INT
+        self.opcode_table[0x54] = self.JMP
+        self.opcode_table[0x55] = self.JEQ
+        self.opcode_table[0x56] = self.JNE
+        self.opcode_table[0x57] = self.JGT
+        self.opcode_table[0x58] = self.JLT
+        self.opcode_table[0x59] = self.JLE
+        self.opcode_table[0x5A] = self.JGE
+        self.opcode_table[0x65] = self.INC
+        self.opcode_table[0x66] = self.DEC
+        self.opcode_table[0x69] = self.NOT
+        self.opcode_table[0x82] = self.LDI
+        self.opcode_table[0x83] = self.LD
+        self.opcode_table[0x84] = self.ST
+        self.opcode_table[0xA0] = self.ADD
+        self.opcode_table[0xA1] = self.SUB
+        self.opcode_table[0xA2] = self.MUL
+        self.opcode_table[0xA3] = self.DIV
+        self.opcode_table[0xA4] = self.MOD
+        self.opcode_table[0xA7] = self.CMP
+        self.opcode_table[0xA8] = self.AND
+        self.opcode_table[0xAA] = self.OR
+        self.opcode_table[0xAB] = self.XOR
+        self.opcode_table[0xAC] = self.SHL
+        self.opcode_table[0xAD] = self.SHR
     
     def NOP(self):
         """ No operation. Do nothing for this instruction. """
@@ -469,11 +469,94 @@ class CPU:
         """
         self.alu('SHR', self.opA, self.opB)
 
-    # CPU blah.
+    def create_ALU_table(self):
+        self.ALU_table = {}
+        self.ALU_table["INC"] = self.ALU_INC
+        self.ALU_table["DEC"] = self.ALU_DEC
+        self.ALU_table["NOT"] = self.ALU_NOT
+        self.ALU_table["ADD"] = self.ALU_ADD
+        self.ALU_table["SUB"] = self.ALU_SUB
+        self.ALU_table["MUL"] = self.ALU_MUL
+        self.ALU_table["DIV"] = self.ALU_DIV
+        self.ALU_table["MOD"] = self.ALU_MOD
+        self.ALU_table["CMP"] = self.ALU_CMP
+        self.ALU_table["AND"] = self.ALU_AND
+        self.ALU_table["OR"]  = self.ALU_OR
+        self.ALU_table["XOR"] = self.ALU_XOR
+        self.ALU_table["SHL"] = self.ALU_SHL
+        self.ALU_table["SHR"] = self.ALU_SHR
+  
+    def ALU_INC(self, reg_a, reg_b):
+        self.R[reg_a] = (self.R[reg_a] + 1) & 255
+
+    def ALU_DEC(self, reg_a, reg_b):
+        self.R[reg_a] = (self.R[reg_a] - 1) & 255
+
+    def ALU_NOT(self, reg_a, reg_b):
+        self.R[reg_a] = ~ self.R[reg_a]
+
+    def ALU_ADD(self, reg_a, reg_b):
+        self.R[reg_a] = (self.R[reg_a] + self.R[reg_b]) & 255
+
+    def ALU_SUB(self, reg_a, reg_b):
+        self.R[reg_a] = (self.R[reg_a] - self.R[reg_b]) & 255
+
+    def ALU_MUL(self, reg_a, reg_b):
+        self.R[reg_a] = (self.R[reg_a] * self.R[reg_b]) & 255
+
+    def ALU_DIV(self, reg_a, reg_b):
+        if self.R[reg_b] == 0:
+            raise Exception("Division by zero error")
+
+        self.R[reg_a] = self.R[reg_a] // self.R[reg_b]
+
+    def ALU_MOD(self, reg_a, reg_b):
+        if self.R[reg_b] == 0:
+            raise Exception("Division by zero error")
+
+        self.R[reg_a] = self.R[reg_a] % self.R[reg_b]
+
+    def ALU_CMP(self, reg_a, reg_b):
+        self.set_L(False)
+        self.set_G(False)
+        self.set_E(False)
+
+        if self.R[reg_a] < self.R[reg_b]:
+            self.set_L(True)
+        elif self.R[reg_a] > self.R[reg_b]:
+            self.set_G(True)
+        else:
+            self.set_E(True)
+
+    def ALU_AND(self, reg_a, reg_b):
+        self.R[reg_a] = self.R[reg_a] & self.R[reg_b]
+
+    def ALU_OR(self, reg_a, reg_b):
+        self.R[reg_a] = self.R[reg_a] | self.R[reg_b]
+
+    def ALU_XOR(self, reg_a, reg_b):
+        self.R[reg_a] = self.R[reg_a] ^ self.R[reg_b]
+
+    def ALU_SHL(self, reg_a, reg_b):
+        self.R[reg_a] = (self.R[reg_a] << self.R[reg_b]) & 255
+
+    def ALU_SHR(self, reg_a, reg_b):
+        self.R[reg_a] = self.R[reg_a] >> self.R[reg_b]
+
+    def alu(self, op, reg_a, reg_b):
+        """Perform ALU operations."""
+        do = self.ALU_table.get(op, None)
+
+        if do is None:
+            raise Exception("Unsupported ALU operation")
+
+        do(reg_a, reg_b)
+
     def load(self, program):
         """Load a program into memory."""
 
-        self.create_branchtable()
+        self.create_opcode_table()
+        self.create_ALU_table()
 
         address = 0
 
@@ -483,46 +566,28 @@ class CPU:
 
     def step(self):
         """Run a single program step"""
-
-        #print(f'PC {self.PC}.')
-        #print(f'SP {"0x{:02x}".format(self.SP)}.')
-        #print(f'Stack Top {self.RAM[self.SP]}.')
-
         # Read byte at PC
         self.MAR = self.PC
         self.ram_read()
         self.IR = self.MDR
-        #print(f'MAR {self.MAR}.')
-        #print(f'MDR {self.MDR}.')
-        #print(f'Executing opcode {"0x{:02x}".format(self.IR)}.')
 
         # Read byte at PC+1
         self.MAR = (self.MAR + 1) & 255
         self.ram_read()
         self.opA = self.MDR
-        #print(f'MAR {self.MAR}.')
-        #print(f'MDR {self.MDR}.')
-        #print(f'First operand {self.opA}.')
 
         # Read byte at PC+2
         self.MAR = (self.MAR + 1) & 255
         self.ram_read()
         self.opB = self.MDR
-        #print(f'MAR {self.MAR}.')
-        #print(f'MDR {self.MDR}.')
-        #print(f'Second operand {self.opB}.')
 
-
-        #print("Registers:", self.R)
-
-        # Check if the PC was set by an opcode
+        # Set flag to see if the PC was set by an opcode
         self.PC_SET = False
 
-        op = self.branchtable.get(self.IR, None)
-
+        # Run opcode
+        op = self.opcode_table.get(self.IR, None)
         if op is None:
             raise Exception(f'Undefined opcode {"0x{:02x}".format(self.IR)}.')
-
         op()
 
         # NOTE: The number of bytes an instruction uses can be determined from the
@@ -544,56 +609,6 @@ class CPU:
         while not self.HALT:
             self.step()
             #print("PC:", self.PC)
-            
-
-    def alu(self, op, reg_a, reg_b):
-        """ALU operations."""
-
-        if op == "INC":
-            self.R[reg_a] = (self.R[reg_a] + 1) & 255
-        elif op == "DEC":
-            self.R[reg_a] = (self.R[reg_a] - 1) & 255
-        elif op == "NOT":
-            self.R[reg_a] = ~ self.R[reg_a]
-        elif op == "ADD":
-            self.R[reg_a] = (self.R[reg_a] + self.R[reg_b]) & 255
-        elif op == "SUB":
-            self.R[reg_a] = (self.R[reg_a] - self.R[reg_b]) & 255
-        elif op == "MUL":
-            self.R[reg_a] = (self.R[reg_a] * self.R[reg_b]) & 255
-        elif op == "DIV":
-            if self.R[reg_b] == 0:
-                raise Exception("Division by zero error")
-
-            self.R[reg_a] = self.R[reg_a] // self.R[reg_b]
-        elif op == "MOD":
-            if self.R[reg_b] == 0:
-                raise Exception("Division by zero error")
-
-            self.R[reg_a] = self.R[reg_a] % self.R[reg_b]
-        elif op == "CMP":
-            self.set_L(False)
-            self.set_G(False)
-            self.set_E(False)
-
-            if self.R[reg_a] < self.R[reg_b]:
-                self.set_L(True)
-            elif self.R[reg_a] > self.R[reg_b]:
-                self.set_G(True)
-            else:
-                self.set_E(True)
-        elif op == "AND":
-            self.R[reg_a] = self.R[reg_a] & self.R[reg_b]
-        elif op == "OR":
-            self.R[reg_a] = self.R[reg_a] | self.R[reg_b]
-        elif op == "XOR":
-            self.R[reg_a] = self.R[reg_a] ^ self.R[reg_b]
-        elif op == "SHL":
-            self.R[reg_a] = (self.R[reg_a] << self.R[reg_b]) & 255
-        elif op == "SHR":
-            self.R[reg_a] = self.R[reg_a] >> self.R[reg_b]
-        else:
-            raise Exception("Unsupported ALU operation")
 
 
     def trace(self):
